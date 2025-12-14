@@ -27,7 +27,7 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(5, 1fr);
       gap: 18px;
     }
     .column {
@@ -163,15 +163,16 @@
         { id:'1502180', name:'Análisis Contable', credits:4, req:['1502043','1502171'] }
       ]},
       { level: 'Nivel 9', courses: [
-        { id:'1502020', name:'Trabajo de Grado I', credits:2, req:['1502024'] },
+        { id:'1502020', name:'Trabajo de Grado I', credits:2, req:['1502024'], minCredits:120 },
         { id:'1502049', name:'Núcleos Problémicos III', credits:2, req:['1502079'] },
         { id:'1502190', name:'Obligaciones y Procedimientos Tributarios II', credits:4, req:['1502088'] },
         { id:'1502192', name:'Gerencia Financiera', credits:3, req:['1502180','1502079'] },
-        { id:'1502193', name:'Informes de Control', credits:3, req:['1502091'] }
+        { id:'1502193', name:'Informes de Control', credits:3, req:['1502091'] },
+        { id:'1502099', name:'Seminario Electivo', credits:3, req:[], minCredits:120 }
       ]},
       { level: 'Nivel 10', courses: [
         { id:'1502030', name:'Trabajo de Grado II', credits:3, req:['1502020'] },
-        { id:'1502195', name:'Consultorio Contable', credits:3, req:[] }
+        { id:'1502195', name:'Consultorio Contable', credits:3, req:[], minCredits:138 }
       ]}
     ];
 
@@ -179,8 +180,10 @@
     const grid = document.getElementById('grid');
     const creditsDiv = document.getElementById('credits');
 
-    function canUnlock(reqs) {
-      return reqs.every(r => approved.has(r));
+    function canUnlock(course) {
+      const reqOk = course.req.every(r => approved.has(r));
+      const creditsOk = !course.minCredits || totalCredits() >= course.minCredits;
+      return reqOk && creditsOk;
     }
 
     function totalCredits() {
@@ -196,19 +199,24 @@
       creditsDiv.textContent = `Créditos aprobados: ${totalCredits()}`;
 
       data.forEach(col => {
+        const totalNivel = col.courses.reduce((a,c)=>a+c.credits,0);
         const div = document.createElement('div');
         div.className = 'column';
-        div.innerHTML = `<h2>${col.level}</h2>`;
+        div.innerHTML = `<h2>${col.level}</h2><div style="text-align:center;font-size:0.8em;color:#6b8fc9;margin-bottom:10px">Total créditos: ${totalNivel}</div>`;
 
         col.courses.forEach(c => {
           const course = document.createElement('div');
           course.className = 'course';
           course.innerHTML = `${c.name}<small>${c.credits} créditos</small>`;
 
-          const unlocked = canUnlock(c.req);
+          const unlocked = canUnlock(c);
           if (!unlocked) {
             course.classList.add('locked');
-            course.dataset.tooltip = 'Falta aprobar:\n' + c.req.filter(r => !approved.has(r)).join(', ');
+            let tips = [];
+            if (c.req.length) tips.push('Prereq: ' + c.req.filter(r=>!approved.has(r)).join(', '));
+            if (c.minCredits && totalCredits() < c.minCredits) tips.push('Requiere ' + c.minCredits + ' créditos');
+            course.dataset.tooltip = tips.join('
+');
           } else if (approved.has(c.id)) {
             course.classList.add('approved');
           }
@@ -218,6 +226,15 @@
             approved.has(c.id) ? approved.delete(c.id) : approved.add(c.id);
             localStorage.setItem('approvedCourses', JSON.stringify([...approved]));
             render();
+          };
+
+          div.appendChild(course);
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    render();
           };
 
           div.appendChild(course);

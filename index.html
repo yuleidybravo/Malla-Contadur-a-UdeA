@@ -4,49 +4,55 @@
   <meta charset="UTF-8" />
   <title>Malla Curricular Contaduría</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
     body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f4f6f8;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #eef4fb, #f7fbff);
       margin: 0;
       padding: 20px;
-      color: #333;
+      color: #1f2a44;
     }
     h1 {
       text-align: center;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #244a7c;
     }
     .credits {
       text-align: center;
-      margin-bottom: 25px;
-      font-weight: 600;
-      color: #4a6fa5;
+      margin-bottom: 28px;
+      font-weight: 500;
+      color: #3b6fb6;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
     }
     .column {
       background: #ffffff;
-      border-radius: 12px;
-      padding: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(36, 74, 124, 0.08);
     }
     .column h2 {
       text-align: center;
       font-size: 1.05em;
-      margin-bottom: 10px;
-      color: #4a6fa5;
+      margin-bottom: 12px;
+      font-weight: 500;
+      color: #2f5fa3;
     }
     .course {
-      background: #e9edf3;
-      margin-bottom: 8px;
-      padding: 8px 10px;
-      border-radius: 8px;
+      background: #e9f1fb;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 0.88em;
       position: relative;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
+      border-left: 5px solid #8bb6e8;
     }
     .course small {
       display: block;
@@ -54,16 +60,22 @@
       opacity: 0.7;
     }
     .course:hover {
-      transform: scale(1.02);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(36, 74, 124, 0.12);
     }
+    /* Materias aprobadas */
     .approved {
-      background: #cfe8cf;
+      background: #cfe2f9;
+      border-left-color: #2f5fa3;
+      color: #1e3f6f;
       text-decoration: line-through;
     }
+    /* Materias bloqueadas */
     .locked {
-      background: #f2dede;
+      background: #f2f6fb;
+      border-left-color: #c3d7f2;
       cursor: not-allowed;
-      color: #888;
+      color: #8aa1c4;
     }
     .locked:hover::after {
       content: attr(data-tooltip);
@@ -71,12 +83,13 @@
       left: 50%;
       bottom: 110%;
       transform: translateX(-50%);
-      background: #333;
-      color: #fff;
+      background: #2f5fa3;
+      color: #ffffff;
       padding: 6px 8px;
-      border-radius: 6px;
-      font-size: 0.75em;
+      border-radius: 8px;
+      font-size: 0.72em;
       white-space: pre-line;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 10;
     }
   </style>

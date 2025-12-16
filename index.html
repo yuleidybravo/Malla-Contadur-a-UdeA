@@ -1,263 +1,298 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Malla Curricular – Contaduría</title>
+<meta charset="UTF-8">
+<title>Malla Curricular – Contaduría</title>
 
-  <!-- FUENTE BONITA -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #eef4fb, #f7fbff);
-      margin: 0;
-      padding: 20px;
-      color: #1f2a44;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #244a7c;
-    }
-
-    .credits {
-      text-align: center;
-      margin-bottom: 30px;
-      font-weight: 500;
-      color: #3b6fb6;
-    }
-
-    /* 5 columnas arriba, 5 abajo */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 18px;
-    }
-
-    .column {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 8px 20px rgba(36, 74, 124, 0.08);
-    }
-
-    .column h2 {
-      text-align: center;
-      font-size: 1.05em;
-      margin-bottom: 4px;
-      font-weight: 500;
-      color: #2f5fa3;
-    }
-
-    .total-nivel {
-      text-align: center;
-      font-size: 0.8em;
-      color: #6b8fc9;
-      margin-bottom: 12px;
-    }
-
-    .course {
-      background: #e9f1fb;
-      margin-bottom: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.88em;
-      position: relative;
-      transition: all 0.25s ease;
-      border-left: 5px solid #8bb6e8;
-    }
-
-    .course small {
-      display: block;
-      font-size: 0.75em;
-      opacity: 0.7;
-    }
-
-    .course:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(36, 74, 124, 0.12);
-    }
-
-    /* Aprobadas */
-    .approved {
-      background: #cfe2f9;
-      border-left-color: #2f5fa3;
-      color: #1e3f6f;
-      text-decoration: line-through;
-    }
-
-    /* Bloqueadas */
-    .locked {
-      background: #f2f6fb;
-      border-left-color: #c3d7f2;
-      cursor: not-allowed;
-      color: #8aa1c4;
-    }
-
-    .locked:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      left: 50%;
-      bottom: 110%;
-      transform: translateX(-50%);
-      background: #2f5fa3;
-      color: #ffffff;
-      padding: 6px 8px;
-      border-radius: 8px;
-      font-size: 0.72em;
-      white-space: pre-line;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10;
-    }
-  </style>
+<style>
+:root{
+  --bg:#eef4fb;
+  --card:#ffffff;
+  --text:#1f2a44;
+  --primary:#2f5fa3;
+  --light:#e9f1fb;
+  --approved:#cfe2f9;
+  --locked:#f2f6fb;
+}
+body.dark{
+  --bg:#0e1a2b;
+  --card:#16263d;
+  --text:#e4ecf7;
+  --primary:#6ea2e8;
+  --light:#1f3554;
+  --approved:#284d7c;
+  --locked:#1a2c47;
+}
+body{
+  margin:0;
+  padding:20px;
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:.3s;
+}
+h1{text-align:center;color:var(--primary)}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.progress-bar{
+  background:#ccc;
+  height:12px;
+  border-radius:10px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0;
+  background:var(--primary);
+  transition:.4s;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+}
+.column{
+  background:var(--card);
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.column h2{text-align:center;color:var(--primary)}
+.level-progress{
+  font-size:.75em;
+  text-align:center;
+  margin-bottom:10px;
+}
+.course{
+  background:var(--light);
+  padding:8px 10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:.2s;
+  font-size:.85em;
+}
+.course:hover{transform:scale(1.03)}
+.approved{
+  background:var(--approved);
+  text-decoration:line-through;
+}
+.locked{
+  background:var(--locked);
+  opacity:.5;
+  cursor:not-allowed;
+}
+.plan{
+  outline:2px dashed var(--primary);
+}
+</style>
 </head>
 
 <body>
 
 <h1>Malla Curricular – Contaduría</h1>
-<div id="credits" class="credits"></div>
+
+<div class="top">
+  <div style="flex:1">
+    <div id="creditText"></div>
+    <div class="progress-bar">
+      <div id="progressFill" class="progress-fill"></div>
+    </div>
+  </div>
+  <div>
+    <button onclick="togglePlan()">📋 Planificar</button>
+    <button onclick="toggleDark()">🌙</button>
+  </div>
+</div>
+
+<div id="planCredits"></div>
 
 <div id="grid" class="grid"></div>
 
 <script>
-  const data = [
-    { level:'Nivel 1', courses:[
-      {id:'1502010',name:'Cultura Contable',credits:3,req:[]},
-      {id:'1502014',name:'Semillero de Investigación I',credits:1,req:[]},
-      {id:'1502015',name:'Fundamentos Interdisciplinarios de la Contabilidad',credits:4,req:[]},
-      {id:'1502016',name:'Interdisciplinariedad del Ente Económico',credits:4,req:[]},
-      {id:'1502150',name:'Inglés I',credits:1,req:[]},
-      {id:'1504101',name:'Matemáticas I',credits:4,req:[]}
-    ]},
-    { level:'Nivel 2', courses:[
-      {id:'1502021',name:'Estructura Contable',credits:3,req:['1502015']},
-      {id:'1502024',name:'Metodología de la Investigación Contable',credits:5,req:[]},
-      {id:'1502026',name:'Semillero de Investigación II',credits:1,req:['1502014']},
-      {id:'1502151',name:'Inglés II',credits:1,req:['1502150']},
-      {id:'1504102',name:'Matemáticas II',credits:3,req:['1504101']},
-      {id:'1506016',name:'Taller de Lectura y Escritura',credits:3,req:[]}
-    ]},
-    { level:'Nivel 3', courses:[
-      {id:'1502031',name:'Procesos Contables I',credits:4,req:['1502021']},
-      {id:'1502033',name:'Procesos Contables II',credits:4,req:['1502021']},
-      {id:'1502152',name:'Inglés III',credits:1,req:['1502151']},
-      {id:'1502873',name:'Herramientas Informáticas',credits:2,req:[]},
-      {id:'1504103',name:'Matemáticas III',credits:3,req:['1504102']},
-      {id:'1506036',name:'Taller de Retórica y Argumentación',credits:3,req:['1506016']},
-      {id:'1506100',name:'Formación Ciudadana y Constitucional',credits:0,req:[]}
-    ]},
-    { level:'Nivel 4', courses:[
-      {id:'1502035',name:'Procesos Contables III',credits:4,req:['1502033']},
-      {id:'1502038',name:'Núcleos Problémicos I',credits:2,req:['1502873','1502031','1502033']},
-      {id:'1502153',name:'Inglés IV',credits:1,req:['1502152']},
-      {id:'1503608',name:'Microeconomía',credits:4,req:['1504103']},
-      {id:'1504064',name:'Métodos Estadísticos',credits:4,req:['1504102']}
-    ]},
-    { level:'Nivel 5', courses:[
-      {id:'1502043',name:'Estados Contables',credits:2,req:['1502031','1502035']},
-      {id:'1502050',name:'Costos I',credits:4,req:['1502031']},
-      {id:'1502055',name:'Modelación Contable',credits:3,req:['1502024']},
-      {id:'1502154',name:'Inglés V',credits:1,req:['1502153']},
-      {id:'1503609',name:'Macroeconomía',credits:4,req:['1503608']}
-    ]},
-    { level:'Nivel 6', courses:[
-      {id:'1502045',name:'Contabilidad y Fenómenos Societarios',credits:3,req:['1502043']},
-      {id:'1502061',name:'Costos II',credits:3,req:['1502050']},
-      {id:'1502073',name:'Teoría Contable',credits:3,req:['1502055','1502010']},
-      {id:'1502075',name:'Gestión y Contabilidad Pública',credits:3,req:['1503609','1502043']},
-      {id:'1502155',name:'Inglés VI',credits:1,req:['1502154']},
-      {id:'1503070',name:'Política Monetaria y Fiscal',credits:3,req:['1503609']}
-    ]},
-    { level:'Nivel 7', courses:[
-      {id:'1502048',name:'Núcleos Problémicos II',credits:2,req:['1502061','1502045']},
-      {id:'1502089',name:'Control',credits:4,req:['1502045']},
-      {id:'1502171',name:'Prospectiva y Presupuesto',credits:4,req:['1502061']},
-      {id:'1502178',name:'Toma de Decisiones I',credits:4,req:['1502061','1504064']},
-      {id:'1503074',name:'Economía Colombiana',credits:3,req:['1503070']}
-    ]},
-    { level:'Nivel 8', courses:[
-      {id:'1502056',name:'Contabilidad y Administración',credits:3,req:['1502016','1502178']},
-      {id:'1502079',name:'Toma de Decisiones II',credits:4,req:['1502171']},
-      {id:'1502088',name:'Obligaciones y Procedimientos Tributarios I',credits:4,req:['1503074','1502045']},
-      {id:'1502091',name:'Procesos de Control',credits:4,req:['1502089']},
-      {id:'1502180',name:'Análisis Contable',credits:4,req:['1502043','1502171']}
-    ]},
-    { level:'Nivel 9', courses:[
-      {id:'1502020',name:'Trabajo de Grado I',credits:2,req:['1502024'],minCredits:120},
-      {id:'1502049',name:'Núcleos Problémicos III',credits:2,req:['1502079']},
-      {id:'1502190',name:'Obligaciones y Procedimientos Tributarios II',credits:4,req:['1502088']},
-      {id:'1502192',name:'Gerencia Financiera',credits:3,req:['1502180','1502079']},
-      {id:'1502193',name:'Informes de Control',credits:3,req:['1502091']},
-      {id:'1502099',name:'Seminario Electivo',credits:3,req:[],minCredits:120}
-    ]},
-    { level:'Nivel 10', courses:[
-      {id:'1502030',name:'Trabajo de Grado II',credits:3,req:['1502020']},
-      {id:'1502195',name:'Consultorio Contable',credits:3,req:[],minCredits:138}
-    ]}
-  ];
+const TOTAL_CREDITS=162;
+let planning=false;
 
-  const approved = new Set(JSON.parse(localStorage.getItem('approvedCourses') || '[]'));
-  const grid = document.getElementById('grid');
-  const creditsDiv = document.getElementById('credits');
+const approved=new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
+const planned=new Set();
 
-  function totalCredits(){
-    let sum=0;
-    data.forEach(n=>n.courses.forEach(c=>{
-      if(approved.has(c.id)) sum+=c.credits;
-    }));
-    return sum;
-  }
+if(localStorage.getItem('dark')==='1'){
+  document.body.classList.add('dark');
+}
 
-  function canUnlock(c){
-    const reqOk = c.req.every(r=>approved.has(r));
-    const creditOk = !c.minCredits || totalCredits()>=c.minCredits;
-    return reqOk && creditOk;
-  }
+const data=[
+{level:'Nivel 1',courses:[
+{id:'1502010',name:'Cultura Contable',credits:3,req:[]},
+{id:'1502014',name:'Semillero de Investigación I',credits:1,req:[]},
+{id:'1502015',name:'Fundamentos Interdisciplinarios de la Contabilidad',credits:4,req:[]},
+{id:'1502016',name:'Interdisciplinariedad del Ente Económico',credits:4,req:[]},
+{id:'1502150',name:'Inglés I',credits:1,req:[]},
+{id:'1504101',name:'Matemáticas I',credits:4,req:[]}
+]},
+{level:'Nivel 2',courses:[
+{id:'1502021',name:'Estructura Contable',credits:3,req:['1502015']},
+{id:'1502024',name:'Metodología de la Investigación Contable',credits:5,req:[]},
+{id:'1502026',name:'Semillero de Investigación II',credits:1,req:['1502014']},
+{id:'1502151',name:'Inglés II',credits:1,req:['1502150']},
+{id:'1504102',name:'Matemáticas II',credits:3,req:['1504101']},
+{id:'1506016',name:'Taller de Lectura y Escritura',credits:3,req:[]}
+]},
+{level:'Nivel 3',courses:[
+{id:'1502031',name:'Procesos Contables I',credits:4,req:['1502021']},
+{id:'1502033',name:'Procesos Contables II',credits:4,req:['1502021']},
+{id:'1502152',name:'Inglés III',credits:1,req:['1502151']},
+{id:'1502873',name:'Herramientas Informáticas',credits:2,req:[]},
+{id:'1504103',name:'Matemáticas III',credits:3,req:['1504102']},
+{id:'1506036',name:'Taller de Retórica y Argumentación',credits:3,req:['1506016']}
+]},
+{level:'Nivel 4',courses:[
+{id:'1502035',name:'Procesos Contables III',credits:4,req:['1502033']},
+{id:'1502038',name:'Núcleos Problémicos I',credits:2,req:['1502031','1502033']},
+{id:'1502153',name:'Inglés IV',credits:1,req:['1502152']},
+{id:'1503608',name:'Microeconomía',credits:4,req:['1504103']},
+{id:'1504064',name:'Métodos Estadísticos',credits:4,req:['1504102']}
+]},
+{level:'Nivel 5',courses:[
+{id:'1502043',name:'Estados Contables',credits:2,req:['1502031','1502035']},
+{id:'1502050',name:'Costos I',credits:4,req:['1502031']},
+{id:'1502055',name:'Modelación Contable',credits:3,req:['1502024']},
+{id:'1502154',name:'Inglés V',credits:1,req:['1502153']},
+{id:'1503609',name:'Macroeconomía',credits:4,req:['1503608']}
+]},
+{level:'Nivel 6',courses:[
+{id:'1502045',name:'Contabilidad y Fenómenos Societarios',credits:3,req:['1502043']},
+{id:'1502061',name:'Costos II',credits:3,req:['1502050']},
+{id:'1502073',name:'Teoría Contable',credits:3,req:['1502055']},
+{id:'1502075',name:'Gestión y Contabilidad Pública',credits:3,req:['1503609']},
+{id:'1502155',name:'Inglés VI',credits:1,req:['1502154']}
+]},
+{level:'Nivel 7',courses:[
+{id:'1502048',name:'Núcleos Problémicos II',credits:2,req:['1502061']},
+{id:'1502089',name:'Control',credits:4,req:['1502045']},
+{id:'1502171',name:'Prospectiva y Presupuesto',credits:4,req:['1502061']},
+{id:'1502178',name:'Toma de Decisiones I',credits:4,req:['1502061','1504064']}
+]},
+{level:'Nivel 8',courses:[
+{id:'1502056',name:'Contabilidad y Administración',credits:3,req:['1502178']},
+{id:'1502079',name:'Toma de Decisiones II',credits:4,req:['1502171']},
+{id:'1502088',name:'Tributarios I',credits:4,req:['1502045']},
+{id:'1502091',name:'Procesos de Control',credits:4,req:['1502089']}
+]},
+{level:'Nivel 9',courses:[
+{id:'1502020',name:'Trabajo de Grado I',credits:2,req:['1502024'],minCredits:120},
+{id:'1502190',name:'Tributarios II',credits:4,req:['1502088']},
+{id:'1502192',name:'Gerencia Financiera',credits:3,req:['1502079']},
+{id:'1502099',name:'Seminario Electivo',credits:3,req:[],minCredits:120}
+]},
+{level:'Nivel 10',courses:[
+{id:'1502030',name:'Trabajo de Grado II',credits:3,req:['1502020']},
+{id:'1502195',name:'Consultorio Contable',credits:3,req:[],minCredits:138}
+]}
+];
 
-  function render(){
-    grid.innerHTML='';
-    creditsDiv.textContent=`Créditos aprobados: ${totalCredits()}`;
+function totalCredits(){
+  let s=0;
+  data.forEach(l=>l.courses.forEach(c=>approved.has(c.id)&&(s+=c.credits)));
+  return s;
+}
 
-    data.forEach(n=>{
-      const totalNivel=n.courses.reduce((a,c)=>a+c.credits,0);
-      const col=document.createElement('div');
-      col.className='column';
-      col.innerHTML=`<h2>${n.level}</h2><div class="total-nivel">Total créditos: ${totalNivel}</div>`;
+function canUnlock(c){
+  return c.req.every(r=>approved.has(r)) &&
+        (!c.minCredits || totalCredits()>=c.minCredits);
+}
 
-      n.courses.forEach(c=>{
-        const div=document.createElement('div');
-        div.className='course';
-        div.innerHTML=`${c.name}<small>${c.credits} créditos</small>`;
-
-        const unlocked=canUnlock(c);
-        if(!unlocked){
-          div.classList.add('locked');
-          let t=[];
-          if(c.req.length) t.push('Prereq: '+c.req.filter(r=>!approved.has(r)).join(', '));
-          if(c.minCredits && totalCredits()<c.minCredits) t.push('Requiere '+c.minCredits+' créditos');
-          div.dataset.tooltip=t.join('\\n');
-        } else if(approved.has(c.id)){
-          div.classList.add('approved');
-        }
-
-        div.onclick=()=>{
-          if(!unlocked) return;
-          approved.has(c.id)?approved.delete(c.id):approved.add(c.id);
-          localStorage.setItem('approvedCourses',JSON.stringify([...approved]));
-          render();
-        };
-
-        col.appendChild(div);
-      });
-      grid.appendChild(col);
+function removeDependents(id){
+  data.forEach(l=>{
+    l.courses.forEach(c=>{
+      if(c.req.includes(id)&&approved.has(c.id)){
+        approved.delete(c.id);
+        removeDependents(c.id);
+      }
     });
-  }
+  });
+}
 
-  render();
+function render(){
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  const credits=totalCredits();
+
+  document.getElementById('creditText').textContent=
+    `Créditos aprobados: ${credits}/${TOTAL_CREDITS}`;
+  document.getElementById('progressFill').style.width=
+    `${(credits/TOTAL_CREDITS)*100}%`;
+
+  let planSum=0;
+  planned.forEach(id=>{
+    data.forEach(l=>l.courses.forEach(c=>c.id===id&&(planSum+=c.credits)));
+  });
+  document.getElementById('planCredits').textContent=
+    planning?`📋 Créditos planeados: ${planSum}`:'';
+
+  data.forEach(l=>{
+    let a=0,t=0;
+    l.courses.forEach(c=>{
+      t+=c.credits;
+      approved.has(c.id)&&(a+=c.credits);
+    });
+    const col=document.createElement('div');
+    col.className='column';
+    col.innerHTML=`<h2>${l.level}</h2>
+      <div class="level-progress">${a}/${t} créditos</div>`;
+
+    l.courses.forEach(c=>{
+      const d=document.createElement('div');
+      d.className='course';
+      d.textContent=`${c.name} (${c.credits})`;
+      if(!canUnlock(c))d.classList.add('locked');
+      if(approved.has(c.id))d.classList.add('approved');
+      if(planned.has(c.id))d.classList.add('plan');
+
+      d.onclick=()=>{
+        if(!canUnlock(c))return;
+        if(planning){
+          planned.has(c.id)?planned.delete(c.id):planned.add(c.id);
+        }else{
+          if(approved.has(c.id)){
+            approved.delete(c.id);
+            removeDependents(c.id);
+          }else{
+            approved.add(c.id);
+          }
+          localStorage.setItem('approvedCourses',JSON.stringify([...approved]));
+        }
+        render();
+      };
+      col.appendChild(d);
+    });
+    grid.appendChild(col);
+  });
+}
+
+function togglePlan(){planning=!planning;planned.clear();render();}
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('dark',
+    document.body.classList.contains('dark')?'1':'0');
+}
+
+render();
 </script>
 
 </body>

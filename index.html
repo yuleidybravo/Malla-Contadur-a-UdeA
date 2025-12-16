@@ -31,25 +31,47 @@ body{
   font-family:'Poppins',sans-serif;
   background:var(--bg);
   color:var(--text);
-  transition:.3s;
 }
 h1{text-align:center;color:var(--primary)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+}
+.column{
+  background:var(--card);
+  border-radius:16px;
+  padding:12px;
+}
+.column h3{text-align:center;color:var(--primary)}
+.course{
+  background:var(--light);
+  padding:8px 10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  font-size:.85em;
+  transition:.2s;
+}
+.course:hover{transform:scale(1.03)}
+.approved{background:var(--approved);text-decoration:line-through}
+.locked{background:var(--locked);opacity:.5;cursor:not-allowed}
+.plan{outline:2px dashed var(--primary)}
+
 .top{
   display:flex;
-  gap:20px;
-  justify-content:space-between;
-  align-items:center;
   flex-wrap:wrap;
-  margin-bottom:20px;
+  gap:10px;
+  margin-bottom:15px;
+  justify-content:space-between;
 }
-button{
-  background:var(--primary);
-  color:#fff;
+button,select{
+  padding:6px 10px;
+  border-radius:8px;
   border:none;
-  padding:8px 12px;
-  border-radius:10px;
   cursor:pointer;
 }
+button{background:var(--primary);color:#fff}
 .progress-bar{
   height:12px;
   background:#cbd9ee;
@@ -61,48 +83,6 @@ button{
   width:0;
   background:var(--primary);
   transition:.4s;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:16px;
-}
-.column{
-  background:var(--card);
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-}
-.column h2{
-  text-align:center;
-  color:var(--primary);
-}
-.level-progress{
-  text-align:center;
-  font-size:.75em;
-  margin-bottom:10px;
-}
-.course{
-  background:var(--light);
-  padding:8px 10px;
-  border-radius:10px;
-  margin-bottom:8px;
-  cursor:pointer;
-  font-size:.85em;
-  transition:.2s;
-}
-.course:hover{transform:scale(1.03)}
-.approved{
-  background:var(--approved);
-  text-decoration:line-through;
-}
-.locked{
-  background:var(--locked);
-  opacity:.5;
-  cursor:not-allowed;
-}
-.plan{
-  outline:2px dashed var(--primary);
 }
 </style>
 </head>
@@ -119,7 +99,10 @@ button{
     </div>
   </div>
   <div>
-    <button onclick="togglePlan()">📋 Planificar</button>
+    <select id="planSelect"></select>
+    <button onclick="newPlan()">➕ Plan</button>
+    <button onclick="deletePlan()">🗑️</button>
+    <button onclick="togglePlan()">📋 Planear</button>
     <button onclick="toggleDark()">🌙</button>
   </div>
 </div>
@@ -128,16 +111,13 @@ button{
 <div id="grid" class="grid"></div>
 
 <script>
-const TOTAL_CREDITS = 171;
-let planning = false;
+/* ===================== ESTADO ===================== */
+const approved=new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
+let plans=JSON.parse(localStorage.getItem('plans')||'{}');
+let currentPlan=null;
+let planning=false;
 
-const approved = new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
-const planned = new Set();
-
-if(localStorage.getItem('dark')==='1'){
-  document.body.classList.add('dark');
-}
-
+/* ===================== DATA ===================== */
 const data=[
 {level:'Nivel 1',courses:[
 {id:'1502010',name:'Cultura Contable',credits:3,req:[]},
@@ -167,7 +147,7 @@ const data=[
 {level:'Nivel 4',courses:[
 {id:'1502035',name:'Procesos Contables III',credits:4,req:['1502033']},
 {id:'1502038',name:'Núcleos Problémicos I',credits:2,req:['1502031','1502033']},
-{id:'HUM1',name:'Humanística I (Electiva)',credits:3,req:['1506036']},
+{id:'HUM1',name:'Humanística I',credits:3,req:['1506036']},
 {id:'1502153',name:'Inglés IV',credits:1,req:['1502152']},
 {id:'1503608',name:'Microeconomía',credits:4,req:['1504103']},
 {id:'1504064',name:'Métodos Estadísticos',credits:4,req:['1504102']}
@@ -176,7 +156,7 @@ const data=[
 {id:'1502043',name:'Estados Contables',credits:2,req:['1502031','1502035']},
 {id:'1502050',name:'Costos I',credits:4,req:['1502031']},
 {id:'1502055',name:'Modelación Contable',credits:3,req:['1502024']},
-{id:'HUM2',name:'Humanística II (Electiva)',credits:3,req:['1506036']},
+{id:'HUM2',name:'Humanística II',credits:3,req:['1506036']},
 {id:'1502154',name:'Inglés V',credits:1,req:['1502153']},
 {id:'1503609',name:'Macroeconomía',credits:4,req:['1503608']}
 ]},
@@ -184,7 +164,7 @@ const data=[
 {id:'1502045',name:'Contabilidad y Fenómenos Societarios',credits:3,req:['1502043']},
 {id:'1502061',name:'Costos II',credits:3,req:['1502050']},
 {id:'1502073',name:'Teoría Contable',credits:3,req:['1502055']},
-{id:'HUM3',name:'Humanística III (Electiva)',credits:3,req:['1506036']},
+{id:'HUM3',name:'Humanística III',credits:3,req:['1506036']},
 {id:'1503070',name:'Política Monetaria y Fiscal',credits:3,req:['1503609']},
 {id:'1502075',name:'Gestión y Contabilidad Pública',credits:3,req:['1503609']},
 {id:'1502155',name:'Inglés VI',credits:1,req:['1502154']}
@@ -217,6 +197,14 @@ const data=[
 ]}
 ];
 
+/* ===================== FUNCIONES ===================== */
+
+const TOTAL_CREDITS=(()=>{
+  let t=0;
+  data.forEach(l=>l.courses.forEach(c=>t+=c.credits));
+  return t;
+})();
+
 function totalCredits(){
   let s=0;
   data.forEach(l=>l.courses.forEach(c=>{
@@ -231,70 +219,112 @@ function canUnlock(c){
 }
 
 function removeDependents(id){
-  data.forEach(l=>{
-    l.courses.forEach(c=>{
-      if(c.req.includes(id) && approved.has(c.id)){
-        approved.delete(c.id);
-        removeDependents(c.id);
-      }
-    });
+  data.forEach(l=>l.courses.forEach(c=>{
+    if(c.req.includes(id)&&approved.has(c.id)){
+      approved.delete(c.id);
+      removeDependents(c.id);
+    }
+  }));
+}
+
+function renderPlans(){
+  const sel=document.getElementById('planSelect');
+  sel.innerHTML='';
+  Object.keys(plans).forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p;o.textContent=p;
+    if(p===currentPlan) o.selected=true;
+    sel.appendChild(o);
   });
+  sel.onchange=e=>{
+    currentPlan=e.target.value;
+    render();
+  };
+}
+
+function newPlan(){
+  const name=prompt('Nombre del semestre:');
+  if(!name||plans[name])return;
+  plans[name]=[];
+  currentPlan=name;
+  savePlans();render();
+}
+
+function deletePlan(){
+  if(!currentPlan||!confirm('¿Eliminar plan?'))return;
+  delete plans[currentPlan];
+  currentPlan=Object.keys(plans)[0]||null;
+  savePlans();render();
+}
+
+function savePlans(){
+  localStorage.setItem('plans',JSON.stringify(plans));
+}
+
+function togglePlan(){
+  planning=!planning;
+  render();
+}
+
+function toggleDark(){
+  document.body.classList.toggle('dark');
+}
+
+function planCredits(){
+  let s=0;
+  plans[currentPlan]?.forEach(id=>{
+    data.forEach(l=>l.courses.forEach(c=>{
+      if(c.id===id) s+=c.credits;
+    }));
+  });
+  return s;
 }
 
 function render(){
+  renderPlans();
+  const credits=totalCredits();
+  document.getElementById('creditText').textContent=
+    `Créditos aprobados: ${credits}/${TOTAL_CREDITS}`;
+  document.getElementById('progressFill').style.width=
+    `${credits/TOTAL_CREDITS*100}%`;
+
+  document.getElementById('planCredits').textContent=
+    planning && currentPlan
+    ? `📋 Créditos del ${currentPlan}: ${planCredits()}`
+    : '';
+
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const credits=totalCredits();
-
-  document.getElementById('creditText').textContent =
-    `Créditos aprobados: ${credits}/${TOTAL_CREDITS}`;
-  document.getElementById('progressFill').style.width =
-    `${(credits/TOTAL_CREDITS)*100}%`;
-
-  let planSum=0;
-  planned.forEach(id=>{
-    data.forEach(l=>l.courses.forEach(c=>{
-      if(c.id===id) planSum+=c.credits;
-    }));
-  });
-  document.getElementById('planCredits').textContent =
-    planning ? `📋 Créditos planeados: ${planSum}` : '';
 
   data.forEach(l=>{
-    let a=0,t=0;
-    l.courses.forEach(c=>{
-      t+=c.credits;
-      if(approved.has(c.id)) a+=c.credits;
-    });
     const col=document.createElement('div');
     col.className='column';
-    col.innerHTML=`<h2>${l.level}</h2>
-      <div class="level-progress">${a}/${t} créditos</div>`;
-
+    col.innerHTML=`<h3>${l.level}</h3>`;
     l.courses.forEach(c=>{
       const d=document.createElement('div');
       d.className='course';
       d.textContent=`${c.name} (${c.credits})`;
-      if(!canUnlock(c)) d.classList.add('locked');
+
       if(approved.has(c.id)) d.classList.add('approved');
-      if(planned.has(c.id)) d.classList.add('plan');
+      if(!planning && !canUnlock(c)) d.classList.add('locked');
+      if(plans[currentPlan]?.includes(c.id)) d.classList.add('plan');
 
       d.onclick=()=>{
-        if(!canUnlock(c)) return;
         if(planning){
-          planned.has(c.id) ? planned.delete(c.id) : planned.add(c.id);
-        }else{
-          if(approved.has(c.id)){
-            approved.delete(c.id);
-            removeDependents(c.id);
-          }else{
-            approved.add(c.id);
-          }
-          localStorage.setItem(
-            'approvedCourses',
-            JSON.stringify([...approved])
-          );
+          const arr=plans[currentPlan];
+          arr.includes(c.id)
+            ? arr.splice(arr.indexOf(c.id),1)
+            : arr.push(c.id);
+          savePlans();render();return;
         }
+        if(!canUnlock(c))return;
+        approved.has(c.id)
+          ? (approved.delete(c.id),removeDependents(c.id))
+          : approved.add(c.id);
+        localStorage.setItem(
+          'approvedCourses',
+          JSON.stringify([...approved])
+        );
         render();
       };
       col.appendChild(d);
@@ -303,21 +333,12 @@ function render(){
   });
 }
 
-function togglePlan(){
-  planning=!planning;
-  planned.clear();
-  render();
-}
-function toggleDark(){
-  document.body.classList.toggle('dark');
-  localStorage.setItem(
-    'dark',
-    document.body.classList.contains('dark')?'1':'0'
-  );
+if(!Object.keys(plans).length){
+  plans['Semestre 1']=[];
+  currentPlan='Semestre 1';
 }
 
 render();
 </script>
-
 </body>
 </html>

@@ -3,36 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <title>Malla Curricular – Contaduría Pública</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#eef4fb;
-  --card:#ffffff;
-  --text:#1f2a44;
-  --primary:#2f5fa3;
-  --light:#e9f1fb;
-  --approved:#cfe2f9;
-  --locked:#f2f6fb;
+  --bg:#eef4fb; --card:#fff; --text:#1f2a44;
+  --primary:#2f5fa3; --light:#e9f1fb;
+  --approved:#cfe2f9; --locked:#f2f6fb;
 }
 body.dark{
-  --bg:#0e1a2b;
-  --card:#16263d;
-  --text:#e4ecf7;
-  --primary:#6ea2e8;
-  --light:#1f3554;
-  --approved:#284d7c;
-  --locked:#1a2c47;
+  --bg:#0e1a2b; --card:#16263d; --text:#e4ecf7;
+  --primary:#6ea2e8; --light:#1f3554;
+  --approved:#284d7c; --locked:#1a2c47;
 }
 body{
-  margin:0;
-  padding:20px;
+  margin:0;padding:20px;
   font-family:'Poppins',sans-serif;
-  background:var(--bg);
-  color:var(--text);
+  background:var(--bg);color:var(--text);
 }
 h1{text-align:center;color:var(--primary)}
+
+.top{
+  display:flex;flex-wrap:wrap;gap:10px;
+  justify-content:space-between;margin-bottom:15px;
+}
+button,select{
+  padding:6px 10px;border-radius:8px;border:none;
+}
+button{background:var(--primary);color:#fff;cursor:pointer}
+
+.progress-bar{
+  height:12px;background:#cbd9ee;
+  border-radius:10px;overflow:hidden
+}
+.progress-fill{
+  height:100%;width:0;
+  background:var(--primary);transition:.4s
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(5,1fr);
@@ -44,46 +52,23 @@ h1{text-align:center;color:var(--primary)}
   padding:12px;
 }
 .column h3{text-align:center;color:var(--primary)}
+.level-info{
+  text-align:center;
+  font-size:.75em;
+  margin-bottom:10px;
+  line-height:1.4;
+}
 .course{
   background:var(--light);
-  padding:8px 10px;
+  padding:8px;
   border-radius:10px;
   margin-bottom:8px;
   cursor:pointer;
   font-size:.85em;
-  transition:.2s;
 }
 .course:hover{transform:scale(1.03)}
 .approved{background:var(--approved);text-decoration:line-through}
-.locked{background:var(--locked);opacity:.5;cursor:not-allowed}
 .plan{outline:2px dashed var(--primary)}
-
-.top{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:15px;
-  justify-content:space-between;
-}
-button,select{
-  padding:6px 10px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-}
-button{background:var(--primary);color:#fff}
-.progress-bar{
-  height:12px;
-  background:#cbd9ee;
-  border-radius:10px;
-  overflow:hidden;
-}
-.progress-fill{
-  height:100%;
-  width:0;
-  background:var(--primary);
-  transition:.4s;
-}
 </style>
 </head>
 
@@ -112,25 +97,25 @@ button{background:var(--primary);color:#fff}
 
 <script>
 /* ===================== ESTADO ===================== */
-const approved=new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
-let plans=JSON.parse(localStorage.getItem('plans')||'{}');
-let currentPlan=null;
-let planning=false;
+const approved = new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
+let plans = JSON.parse(localStorage.getItem('plans')||'{}');
+let currentPlan = null;
+let planning = false;
 
-/* ===================== DATA ===================== */
-const data=[
+/* ===================== DATA COMPLETA ===================== */
+const data = [
 {level:'Nivel 1',courses:[
 {id:'1502010',name:'Cultura Contable',credits:3,req:[]},
 {id:'1502014',name:'Semillero de Investigación I',credits:1,req:[]},
-{id:'1502015',name:'Fundamentos Interdisciplinarios de la Contabilidad',credits:4,req:[]},
-{id:'1502016',name:'Interdisciplinariedad del Ente Económico',credits:4,req:[]},
+{id:'1502015',name:'Fundamentos Interdisciplinarios',credits:4,req:[]},
+{id:'1502016',name:'Interdisciplinariedad',credits:4,req:[]},
 {id:'1502150',name:'Inglés I',credits:1,req:[]},
 {id:'1504101',name:'Matemáticas I',credits:4,req:[]}
 ]},
 {level:'Nivel 2',courses:[
 {id:'1502021',name:'Estructura Contable',credits:3,req:['1502015']},
-{id:'1502024',name:'Metodología de la Investigación Contable',credits:5,req:[]},
-{id:'1502026',name:'Semillero de Investigación II',credits:1,req:['1502014']},
+{id:'1502024',name:'Metodología de la Investigación',credits:5,req:[]},
+{id:'1502026',name:'Semillero II',credits:1,req:['1502014']},
 {id:'1502151',name:'Inglés II',credits:1,req:['1502150']},
 {id:'1504102',name:'Matemáticas II',credits:3,req:['1504101']},
 {id:'1506016',name:'Taller de Lectura y Escritura',credits:3,req:[]}
@@ -141,7 +126,7 @@ const data=[
 {id:'1502152',name:'Inglés III',credits:1,req:['1502151']},
 {id:'1502873',name:'Herramientas Informáticas',credits:2,req:[]},
 {id:'1504103',name:'Matemáticas III',credits:3,req:['1504102']},
-{id:'1506036',name:'Taller de Retórica y Argumentación',credits:3,req:['1506016']},
+{id:'1506036',name:'Taller de Retórica',credits:3,req:['1506016']},
 {id:'1506100',name:'Formación Ciudadana',credits:0,req:[]}
 ]},
 {level:'Nivel 4',courses:[
@@ -184,49 +169,41 @@ const data=[
 {id:'1502180',name:'Análisis Contable',credits:4,req:['1502171','1502043']}
 ]},
 {level:'Nivel 9',courses:[
-{id:'1502020',name:'Trabajo de Grado I',credits:2,req:['1502024'],minCredits:120},
+{id:'1502020',name:'Trabajo de Grado I',credits:2,req:['1502024']},
 {id:'1502049',name:'Núcleos Problémicos III',credits:2,req:['1502079']},
 {id:'1502190',name:'Tributarios II',credits:4,req:['1502088']},
 {id:'1502192',name:'Gerencia Financiera',credits:3,req:['1502079']},
 {id:'1502193',name:'Informes de Control',credits:3,req:['1502091']},
-{id:'1502099',name:'Seminario Electivo',credits:3,req:[],minCredits:120}
+{id:'1502099',name:'Seminario Electivo',credits:3,req:[]}
 ]},
 {level:'Nivel 10',courses:[
 {id:'1502030',name:'Trabajo de Grado II',credits:3,req:['1502020']},
-{id:'1502195',name:'Consultorio Contable',credits:3,req:[],minCredits:138}
+{id:'1502195',name:'Consultorio Contable',credits:3,req:[]}
 ]}
 ];
 
-/* ===================== FUNCIONES ===================== */
+/* ===================== CÁLCULOS ===================== */
+const TOTAL_CREDITS = data.flatMap(l=>l.courses)
+                          .reduce((s,c)=>s+c.credits,0);
 
-const TOTAL_CREDITS=(()=>{
-  let t=0;
-  data.forEach(l=>l.courses.forEach(c=>t+=c.credits));
-  return t;
-})();
-
-function totalCredits(){
-  let s=0;
-  data.forEach(l=>l.courses.forEach(c=>{
-    if(approved.has(c.id)) s+=c.credits;
-  }));
-  return s;
+function approvedCredits(){
+  return data.flatMap(l=>l.courses)
+             .filter(c=>approved.has(c.id))
+             .reduce((s,c)=>s+c.credits,0);
 }
 
-function canUnlock(c){
-  return c.req.every(r=>approved.has(r)) &&
-         (!c.minCredits || totalCredits()>=c.minCredits);
+function levelStats(level){
+  let total=0, approvedSum=0, plannedSum=0;
+  level.courses.forEach(c=>{
+    total+=c.credits;
+    if(approved.has(c.id)) approvedSum+=c.credits;
+    if(planning && plans[currentPlan]?.includes(c.id))
+      plannedSum+=c.credits;
+  });
+  return {total, approvedSum, plannedSum};
 }
 
-function removeDependents(id){
-  data.forEach(l=>l.courses.forEach(c=>{
-    if(c.req.includes(id)&&approved.has(c.id)){
-      approved.delete(c.id);
-      removeDependents(c.id);
-    }
-  }));
-}
-
+/* ===================== PLANES ===================== */
 function renderPlans(){
   const sel=document.getElementById('planSelect');
   sel.innerHTML='';
@@ -236,12 +213,8 @@ function renderPlans(){
     if(p===currentPlan) o.selected=true;
     sel.appendChild(o);
   });
-  sel.onchange=e=>{
-    currentPlan=e.target.value;
-    render();
-  };
+  sel.onchange=e=>{currentPlan=e.target.value;render();};
 }
-
 function newPlan(){
   const name=prompt('Nombre del semestre:');
   if(!name||plans[name])return;
@@ -249,66 +222,50 @@ function newPlan(){
   currentPlan=name;
   savePlans();render();
 }
-
 function deletePlan(){
   if(!currentPlan||!confirm('¿Eliminar plan?'))return;
   delete plans[currentPlan];
   currentPlan=Object.keys(plans)[0]||null;
   savePlans();render();
 }
-
 function savePlans(){
   localStorage.setItem('plans',JSON.stringify(plans));
 }
 
-function togglePlan(){
-  planning=!planning;
-  render();
-}
-
-function toggleDark(){
-  document.body.classList.toggle('dark');
-}
-
-function planCredits(){
-  let s=0;
-  plans[currentPlan]?.forEach(id=>{
-    data.forEach(l=>l.courses.forEach(c=>{
-      if(c.id===id) s+=c.credits;
-    }));
-  });
-  return s;
-}
-
+/* ===================== RENDER ===================== */
 function render(){
   renderPlans();
-  const credits=totalCredits();
+  const ac=approvedCredits();
   document.getElementById('creditText').textContent=
-    `Créditos aprobados: ${credits}/${TOTAL_CREDITS}`;
+    `Créditos aprobados: ${ac} / ${TOTAL_CREDITS}`;
   document.getElementById('progressFill').style.width=
-    `${credits/TOTAL_CREDITS*100}%`;
+    `${ac/TOTAL_CREDITS*100}%`;
 
   document.getElementById('planCredits').textContent=
-    planning && currentPlan
-    ? `📋 Créditos del ${currentPlan}: ${planCredits()}`
-    : '';
+    planning && currentPlan ? `📋 Créditos del ${currentPlan}` : '';
 
   const grid=document.getElementById('grid');
   grid.innerHTML='';
 
-  data.forEach(l=>{
+  data.forEach(level=>{
+    const {total,approvedSum,plannedSum}=levelStats(level);
     const col=document.createElement('div');
     col.className='column';
-    col.innerHTML=`<h3>${l.level}</h3>`;
-    l.courses.forEach(c=>{
+    col.innerHTML=`
+      <h3>${level.level}</h3>
+      <div class="level-info">
+        Total del nivel: <strong>${total}</strong> créditos<br>
+        ${planning
+          ? `Planeados: ${plannedSum} / ${total}`
+          : `Aprobados: ${approvedSum} / ${total}`}
+      </div>
+    `;
+    level.courses.forEach(c=>{
       const d=document.createElement('div');
       d.className='course';
       d.textContent=`${c.name} (${c.credits})`;
-
       if(approved.has(c.id)) d.classList.add('approved');
-      if(!planning && !canUnlock(c)) d.classList.add('locked');
       if(plans[currentPlan]?.includes(c.id)) d.classList.add('plan');
-
       d.onclick=()=>{
         if(planning){
           const arr=plans[currentPlan];
@@ -317,9 +274,8 @@ function render(){
             : arr.push(c.id);
           savePlans();render();return;
         }
-        if(!canUnlock(c))return;
         approved.has(c.id)
-          ? (approved.delete(c.id),removeDependents(c.id))
+          ? approved.delete(c.id)
           : approved.add(c.id);
         localStorage.setItem(
           'approvedCourses',
@@ -333,12 +289,16 @@ function render(){
   });
 }
 
+function togglePlan(){planning=!planning;render();}
+function toggleDark(){document.body.classList.toggle('dark');}
+
+/* ===================== INIT ===================== */
 if(!Object.keys(plans).length){
   plans['Semestre 1']=[];
   currentPlan='Semestre 1';
 }
-
 render();
 </script>
+
 </body>
 </html>

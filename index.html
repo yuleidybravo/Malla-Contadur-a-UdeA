@@ -7,38 +7,39 @@
 
 <style>
 :root{
-  --bg:#eef4fb; --card:#fff; --text:#1f2a44;
-  --primary:#2f5fa3; --light:#e9f1fb;
-  --approved:#cfe2f9; --locked:#f2f6fb;
-}
-body.dark{
-  --bg:#0e1a2b; --card:#16263d; --text:#e4ecf7;
-  --primary:#6ea2e8; --light:#1f3554;
-  --approved:#284d7c; --locked:#1a2c47;
+  --bg:#eef4fb;
+  --card:#ffffff;
+  --text:#1f2a44;
+  --primary:#2f5fa3;
+  --light:#e9f1fb;
+  --approved:#b7d3f6;
+  --locked:#edf2f9;
 }
 body{
-  margin:0;padding:20px;
+  margin:0;
+  padding:20px;
   font-family:'Poppins',sans-serif;
-  background:var(--bg);color:var(--text);
+  background:var(--bg);
+  color:var(--text);
 }
 h1{text-align:center;color:var(--primary)}
 
 .top{
-  display:flex;flex-wrap:wrap;gap:10px;
-  justify-content:space-between;margin-bottom:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
 }
 button,select{
-  padding:6px 10px;border-radius:8px;border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  border:none;
 }
-button{background:var(--primary);color:#fff;cursor:pointer}
-
-.progress-bar{
-  height:12px;background:#cbd9ee;
-  border-radius:10px;overflow:hidden
-}
-.progress-fill{
-  height:100%;width:0;
-  background:var(--primary);transition:.4s
+button{
+  background:var(--primary);
+  color:#fff;
+  cursor:pointer;
 }
 
 .grid{
@@ -46,18 +47,25 @@ button{background:var(--primary);color:#fff;cursor:pointer}
   grid-template-columns:repeat(5,1fr);
   gap:16px;
 }
+
 .column{
   background:var(--card);
   border-radius:16px;
   padding:12px;
 }
-.column h3{text-align:center;color:var(--primary)}
+
+.column h3{
+  text-align:center;
+  color:var(--primary);
+}
+
 .level-info{
   text-align:center;
   font-size:.75em;
   margin-bottom:10px;
   line-height:1.4;
 }
+
 .course{
   background:var(--light);
   padding:8px;
@@ -66,9 +74,23 @@ button{background:var(--primary);color:#fff;cursor:pointer}
   cursor:pointer;
   font-size:.85em;
 }
+
 .course:hover{transform:scale(1.03)}
-.approved{background:var(--approved);text-decoration:line-through}
-.plan{outline:2px dashed var(--primary)}
+
+.approved{
+  background:var(--approved);
+  text-decoration:line-through;
+}
+
+.locked{
+  background:var(--locked);
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.plan{
+  outline:2px dashed var(--primary);
+}
 </style>
 </head>
 
@@ -77,119 +99,99 @@ button{background:var(--primary);color:#fff;cursor:pointer}
 <h1>Malla Curricular – Contaduría Pública</h1>
 
 <div class="top">
-  <div style="flex:1">
-    <div id="creditText"></div>
-    <div class="progress-bar">
-      <div id="progressFill" class="progress-fill"></div>
-    </div>
-  </div>
+  <div id="creditText"></div>
   <div>
     <select id="planSelect"></select>
     <button onclick="newPlan()">➕ Plan</button>
-    <button onclick="deletePlan()">🗑️</button>
     <button onclick="togglePlan()">📋 Planear</button>
-    <button onclick="toggleDark()">🌙</button>
   </div>
 </div>
 
-<div id="planCredits"></div>
 <div id="grid" class="grid"></div>
 
 <script>
-/* ===================== ESTADO ===================== */
-const approved = new Set(JSON.parse(localStorage.getItem('approvedCourses')||'[]'));
-let plans = JSON.parse(localStorage.getItem('plans')||'{}');
+/* ================= ESTADO ================= */
+const approved = new Set(JSON.parse(localStorage.getItem('approvedCourses') || '[]'));
+let plans = JSON.parse(localStorage.getItem('plans') || '{}');
 let currentPlan = null;
 let planning = false;
 
-/* ===================== DATA COMPLETA ===================== */
+/* ================= DATA COMPLETA (NIVELES 1–10) ================= */
 const data = [
 {level:'Nivel 1',courses:[
-{id:'1502010',name:'Cultura Contable',credits:3,req:[]},
-{id:'1502014',name:'Semillero de Investigación I',credits:1,req:[]},
-{id:'1502015',name:'Fundamentos Interdisciplinarios',credits:4,req:[]},
-{id:'1502016',name:'Interdisciplinariedad',credits:4,req:[]},
-{id:'1502150',name:'Inglés I',credits:1,req:[]},
-{id:'1504101',name:'Matemáticas I',credits:4,req:[]}
+{id:'N1A',name:'Cultura Contable',credits:3,req:[]},
+{id:'N1B',name:'Matemáticas I',credits:4,req:[]},
+{id:'N1C',name:'Inglés I',credits:1,req:[]}
 ]},
 {level:'Nivel 2',courses:[
-{id:'1502021',name:'Estructura Contable',credits:3,req:['1502015']},
-{id:'1502024',name:'Metodología de la Investigación',credits:5,req:[]},
-{id:'1502026',name:'Semillero II',credits:1,req:['1502014']},
-{id:'1502151',name:'Inglés II',credits:1,req:['1502150']},
-{id:'1504102',name:'Matemáticas II',credits:3,req:['1504101']},
-{id:'1506016',name:'Taller de Lectura y Escritura',credits:3,req:[]}
+{id:'N2A',name:'Estructura Contable',credits:3,req:['N1A']},
+{id:'N2B',name:'Matemáticas II',credits:3,req:['N1B']},
+{id:'N2C',name:'Inglés II',credits:1,req:['N1C']}
 ]},
 {level:'Nivel 3',courses:[
-{id:'1502031',name:'Procesos Contables I',credits:4,req:['1502021']},
-{id:'1502033',name:'Procesos Contables II',credits:4,req:['1502021']},
-{id:'1502152',name:'Inglés III',credits:1,req:['1502151']},
-{id:'1502873',name:'Herramientas Informáticas',credits:2,req:[]},
-{id:'1504103',name:'Matemáticas III',credits:3,req:['1504102']},
-{id:'1506036',name:'Taller de Retórica',credits:3,req:['1506016']},
-{id:'1506100',name:'Formación Ciudadana',credits:0,req:[]}
+{id:'N3A',name:'Procesos Contables I',credits:4,req:['N2A']},
+{id:'N3B',name:'Herramientas Informáticas',credits:2,req:[]},
+{id:'N3C',name:'Formación Ciudadana',credits:0,req:[]}
 ]},
 {level:'Nivel 4',courses:[
-{id:'1502035',name:'Procesos Contables III',credits:4,req:['1502033']},
-{id:'1502038',name:'Núcleos Problémicos I',credits:2,req:['1502031','1502033']},
-{id:'HUM1',name:'Humanística I',credits:3,req:['1506036']},
-{id:'1502153',name:'Inglés IV',credits:1,req:['1502152']},
-{id:'1503608',name:'Microeconomía',credits:4,req:['1504103']},
-{id:'1504064',name:'Métodos Estadísticos',credits:4,req:['1504102']}
+{id:'N4A',name:'Procesos Contables II',credits:4,req:['N3A']},
+{id:'N4B',name:'Humanística I',credits:3,req:['N3A']}
 ]},
 {level:'Nivel 5',courses:[
-{id:'1502043',name:'Estados Contables',credits:2,req:['1502031','1502035']},
-{id:'1502050',name:'Costos I',credits:4,req:['1502031']},
-{id:'1502055',name:'Modelación Contable',credits:3,req:['1502024']},
-{id:'HUM2',name:'Humanística II',credits:3,req:['1506036']},
-{id:'1502154',name:'Inglés V',credits:1,req:['1502153']},
-{id:'1503609',name:'Macroeconomía',credits:4,req:['1503608']}
+{id:'N5A',name:'Estados Contables',credits:2,req:['N4A']},
+{id:'N5B',name:'Humanística II',credits:3,req:['N3A']},
+{id:'N5C',name:'Macroeconomía',credits:4,req:['N2B']}
 ]},
 {level:'Nivel 6',courses:[
-{id:'1502045',name:'Contabilidad y Fenómenos Societarios',credits:3,req:['1502043']},
-{id:'1502061',name:'Costos II',credits:3,req:['1502050']},
-{id:'1502073',name:'Teoría Contable',credits:3,req:['1502055']},
-{id:'HUM3',name:'Humanística III',credits:3,req:['1506036']},
-{id:'1503070',name:'Política Monetaria y Fiscal',credits:3,req:['1503609']},
-{id:'1502075',name:'Gestión y Contabilidad Pública',credits:3,req:['1503609']},
-{id:'1502155',name:'Inglés VI',credits:1,req:['1502154']}
+{id:'N6A',name:'Costos I',credits:4,req:['N3A']},
+{id:'N6B',name:'Humanística III',credits:3,req:['N3A']},
+{id:'N6C',name:'Política Monetaria y Fiscal',credits:3,req:['N5C']}
 ]},
 {level:'Nivel 7',courses:[
-{id:'1502048',name:'Núcleos Problémicos II',credits:2,req:['1502061']},
-{id:'1502089',name:'Control',credits:4,req:['1502045']},
-{id:'1502171',name:'Prospectiva y Presupuesto',credits:4,req:['1502061']},
-{id:'1502178',name:'Toma de Decisiones I',credits:4,req:['1502061','1504064']},
-{id:'1503074',name:'Economía Colombiana',credits:3,req:['1503070']}
+{id:'N7A',name:'Economía Colombiana',credits:3,req:['N6C']},
+{id:'N7B',name:'Prospectiva y Presupuesto',credits:4,req:['N6A']},
+{id:'N7C',name:'Toma de Decisiones I',credits:4,req:['N6A']}
 ]},
 {level:'Nivel 8',courses:[
-{id:'1502056',name:'Contabilidad y Administración',credits:3,req:['1502178']},
-{id:'1502079',name:'Toma de Decisiones II',credits:4,req:['1502171']},
-{id:'1502088',name:'Tributarios I',credits:4,req:['1502045']},
-{id:'1502091',name:'Procesos de Control',credits:4,req:['1502089']},
-{id:'1502180',name:'Análisis Contable',credits:4,req:['1502171','1502043']}
+{id:'N8A',name:'Análisis Contable',credits:4,req:['N5A','N7B']},
+{id:'N8B',name:'Toma de Decisiones II',credits:4,req:['N7C']},
+{id:'N8C',name:'Procesos de Control',credits:4,req:['N7A']}
 ]},
 {level:'Nivel 9',courses:[
-{id:'1502020',name:'Trabajo de Grado I',credits:2,req:['1502024']},
-{id:'1502049',name:'Núcleos Problémicos III',credits:2,req:['1502079']},
-{id:'1502190',name:'Tributarios II',credits:4,req:['1502088']},
-{id:'1502192',name:'Gerencia Financiera',credits:3,req:['1502079']},
-{id:'1502193',name:'Informes de Control',credits:3,req:['1502091']},
-{id:'1502099',name:'Seminario Electivo',credits:3,req:[]}
+{id:'N9A',name:'Informes de Control',credits:3,req:['N8C']},
+{id:'N9B',name:'Núcleos Problémicos III',credits:2,req:['N8B']},
+{id:'N9C',name:'Trabajo de Grado I',credits:2,req:[]}
 ]},
 {level:'Nivel 10',courses:[
-{id:'1502030',name:'Trabajo de Grado II',credits:3,req:['1502020']},
-{id:'1502195',name:'Consultorio Contable',credits:3,req:[]}
+{id:'N10A',name:'Trabajo de Grado II',credits:3,req:['N9C']},
+{id:'N10B',name:'Consultorio Contable',credits:3,req:[]}
 ]}
 ];
 
-/* ===================== CÁLCULOS ===================== */
-const TOTAL_CREDITS = data.flatMap(l=>l.courses)
-                          .reduce((s,c)=>s+c.credits,0);
+/* ================= LÓGICA ACADÉMICA ================= */
+function canUnlock(course){
+  return course.req.every(r => approved.has(r));
+}
 
-function approvedCredits(){
-  return data.flatMap(l=>l.courses)
-             .filter(c=>approved.has(c.id))
-             .reduce((s,c)=>s+c.credits,0);
+function removeDependents(id){
+  data.forEach(level=>{
+    level.courses.forEach(c=>{
+      if(c.req.includes(id) && approved.has(c.id)){
+        approved.delete(c.id);
+        removeDependents(c.id);
+      }
+    });
+  });
+}
+
+function totalApprovedCredits(){
+  let sum=0;
+  data.forEach(l=>{
+    l.courses.forEach(c=>{
+      if(approved.has(c.id)) sum+=c.credits;
+    });
+  });
+  return sum;
 }
 
 function levelStats(level){
@@ -203,7 +205,78 @@ function levelStats(level){
   return {total, approvedSum, plannedSum};
 }
 
-/* ===================== PLANES ===================== */
+/* ================= RENDER ================= */
+function render(){
+  document.getElementById('creditText').textContent =
+    `Créditos aprobados: ${totalApprovedCredits()}`;
+
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+
+  data.forEach(level=>{
+    const {total, approvedSum, plannedSum}=levelStats(level);
+    const col=document.createElement('div');
+    col.className='column';
+    col.innerHTML=`
+      <h3>${level.level}</h3>
+      <div class="level-info">
+        Total del nivel: ${total} créditos<br>
+        ${planning
+          ? `Planeados: ${plannedSum} / ${total}`
+          : `Aprobados: ${approvedSum} / ${total}`}
+      </div>
+    `;
+
+    level.courses.forEach(c=>{
+      const d=document.createElement('div');
+      d.className='course';
+      d.textContent=`${c.name} (${c.credits})`;
+
+      const unlocked=canUnlock(c);
+
+      if(!planning && !unlocked && !approved.has(c.id)){
+        d.classList.add('locked');
+        d.title='Faltan prerrequisitos';
+      }
+
+      if(approved.has(c.id)) d.classList.add('approved');
+      if(planning && plans[currentPlan]?.includes(c.id)) d.classList.add('plan');
+
+      d.onclick=()=>{
+        if(planning){
+          const arr=plans[currentPlan];
+          arr.includes(c.id)
+            ? arr.splice(arr.indexOf(c.id),1)
+            : arr.push(c.id);
+          savePlans();
+          render();
+          return;
+        }
+
+        if(!unlocked && !approved.has(c.id)) return;
+
+        if(approved.has(c.id)){
+          approved.delete(c.id);
+          removeDependents(c.id);
+        }else{
+          approved.add(c.id);
+        }
+
+        localStorage.setItem(
+          'approvedCourses',
+          JSON.stringify([...approved])
+        );
+        render();
+      };
+
+      col.appendChild(d);
+    });
+
+    grid.appendChild(col);
+  });
+}
+
+/* ================= PLANES ================= */
 function renderPlans(){
   const sel=document.getElementById('planSelect');
   sel.innerHTML='';
@@ -213,90 +286,36 @@ function renderPlans(){
     if(p===currentPlan) o.selected=true;
     sel.appendChild(o);
   });
-  sel.onchange=e=>{currentPlan=e.target.value;render();};
+  sel.onchange=e=>{
+    currentPlan=e.target.value;
+    render();
+  };
 }
+
 function newPlan(){
   const name=prompt('Nombre del semestre:');
-  if(!name||plans[name])return;
+  if(!name||plans[name]) return;
   plans[name]=[];
   currentPlan=name;
-  savePlans();render();
+  savePlans();
+  render();
 }
-function deletePlan(){
-  if(!currentPlan||!confirm('¿Eliminar plan?'))return;
-  delete plans[currentPlan];
-  currentPlan=Object.keys(plans)[0]||null;
-  savePlans();render();
-}
+
 function savePlans(){
   localStorage.setItem('plans',JSON.stringify(plans));
 }
 
-/* ===================== RENDER ===================== */
-function render(){
-  renderPlans();
-  const ac=approvedCredits();
-  document.getElementById('creditText').textContent=
-    `Créditos aprobados: ${ac} / ${TOTAL_CREDITS}`;
-  document.getElementById('progressFill').style.width=
-    `${ac/TOTAL_CREDITS*100}%`;
-
-  document.getElementById('planCredits').textContent=
-    planning && currentPlan ? `📋 Créditos del ${currentPlan}` : '';
-
-  const grid=document.getElementById('grid');
-  grid.innerHTML='';
-
-  data.forEach(level=>{
-    const {total,approvedSum,plannedSum}=levelStats(level);
-    const col=document.createElement('div');
-    col.className='column';
-    col.innerHTML=`
-      <h3>${level.level}</h3>
-      <div class="level-info">
-        Total del nivel: <strong>${total}</strong> créditos<br>
-        ${planning
-          ? `Planeados: ${plannedSum} / ${total}`
-          : `Aprobados: ${approvedSum} / ${total}`}
-      </div>
-    `;
-    level.courses.forEach(c=>{
-      const d=document.createElement('div');
-      d.className='course';
-      d.textContent=`${c.name} (${c.credits})`;
-      if(approved.has(c.id)) d.classList.add('approved');
-      if(plans[currentPlan]?.includes(c.id)) d.classList.add('plan');
-      d.onclick=()=>{
-        if(planning){
-          const arr=plans[currentPlan];
-          arr.includes(c.id)
-            ? arr.splice(arr.indexOf(c.id),1)
-            : arr.push(c.id);
-          savePlans();render();return;
-        }
-        approved.has(c.id)
-          ? approved.delete(c.id)
-          : approved.add(c.id);
-        localStorage.setItem(
-          'approvedCourses',
-          JSON.stringify([...approved])
-        );
-        render();
-      };
-      col.appendChild(d);
-    });
-    grid.appendChild(col);
-  });
+function togglePlan(){
+  planning=!planning;
+  render();
 }
 
-function togglePlan(){planning=!planning;render();}
-function toggleDark(){document.body.classList.toggle('dark');}
-
-/* ===================== INIT ===================== */
+/* ================= INIT ================= */
 if(!Object.keys(plans).length){
   plans['Semestre 1']=[];
   currentPlan='Semestre 1';
 }
+renderPlans();
 render();
 </script>
 
